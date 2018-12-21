@@ -1,14 +1,7 @@
-#!/bin/sh
-# One-time script to combine external soft-subs
-# with episode files for all seasons of Slayers.
+#!/bin/bash
 
-COUNT=0
-DIR='/mnt/mdrive/videos/anime/Slayers/Season\ 1/'
-FILES=($(find "$DIR" -iname "*Slayers*$count*" 2>/dev/null))
-
-while $count <= 26; do
-  for file in ${FILES[@]};
-  do
-    #stuff
-  done
-done;
+for ((count = 1; count <= 26; count++)) do
+  ffmpeg -y -i Slayers\ ${count}\ \(BDRip\ 960x720\ MKV\,\ AVC\ h264\ 10bit\,\ JP\ AAC\ 48000hz\ 2ch\ 16bit\).mp4 \
+    -i Slayers\ ${count}\ EngSub.ass -c:s mov_text -c:v copy -c:a copy TEMP.mp4
+  mv -v TEMP.mp4 Slayers\ S1E${count}.mp4
+done
