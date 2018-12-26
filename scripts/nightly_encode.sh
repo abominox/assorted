@@ -1,8 +1,7 @@
 #!/bin/bash
 # Script for a nightly re-encode of selected new
 # videos from my storage array, to reduce filesize.
-# Texts a report to the user upon completion (or timeout).
-# In cron - timeout 25200 SCRIPT
+# Texts a report to the user upon completion.
 encode_count=0
 space_saved=0
 totalDuration=0
@@ -12,16 +11,15 @@ if [ ! -f /usr/bin/ffmpeg ]; then
   exit 1
 fi
 
-#for video in "$@"/*.mp4; do
 # All .mp4 files recursively in current dir, created in last day
-#for video in $(find "$1" -name '*.mp4' -ctime -2); do
-echo "$(find "$1" -name '*.mp4' -ctime -2)" | while read -r video; do
+IFS=$'\n'
+for video in $(find "$@" -name "*.mp4");
+do
   # If no .mp4 files, exit
-  #[ -f "${video}" ] || break
+  #[ -f "${video}" ] || echo "No .mp4 files found in current dir!" && break
 
   ff_filesize=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   filesize=$(echo "scale=2; $(echo "$ff_filesize" / 1024 | bc -l)" / 1024 | bc -l)
-  # Remember: Value should be either 23 or 27, you have not decided yet (pending quality test)
   ffmpeg -y -i "${video}" -threads 3 -vcodec libx264 -crf 27 TEMP.mp4 && mv TEMP.mp4 "${video}"
   ff_filesize_2=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   converted_size=$(echo "scale=2; $(echo "$ff_filesize_2" / 1024 | bc -l)" / 1024 | bc -l)
@@ -34,7 +32,7 @@ echo "$(find "$1" -name '*.mp4' -ctime -2)" | while read -r video; do
 
   printf "\n\n\nEncode Stats for %s:\nDuration: %s Minutes\nSize Before: %s MiB\nSize After: %s MiB\n" \
     "${video}" "$duration" "$filesize" "$converted_size"
-  echo "Encoded $encode_count of ${#video[@]} videos at $(date +"%r on %x")"
+  echo "Encoded $encode_count of ${#video} videos at $(date +"%r on %x")"
 done
 
 # Print + send SMS report
