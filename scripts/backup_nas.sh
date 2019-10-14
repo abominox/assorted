@@ -4,11 +4,21 @@
 # Send SMS w/ error message if unsuccessful
 # USAGE: './backup_nas.sh /output/file/path 1-234-567-8910'
 
-if rsync -artvh --progress --ignore-errors --ignore-missing-args --delete /mnt/drt/ /mnt/mdrive/ /mnt/backup/ &> "$1"; then
+# If no args, print usage
+if [ $# -eq 0 ]; then
+  echo "USAGE: './backup_nas.sh /output/file/path 1-234-567-8910'"
+  exit 1
+fi
+
+printf "%s\n\n" "Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$1"
+
+if rsync -avP --relative --ignore-errors --ignore-missing-args --exclude @Recycle --delete /mnt/./drt /mnt/./mdrive raxemremy@192.168.1.12:/share/Backup &>> "$1"; then
     code="SUCCESS"
 else
     code="FAILURE"
 fi
 
 URL=$(curl --upload-file "$1" https://transfer.sh/output.txt) 
-aws sns publish --phone-number="$2" --message "$(date) $code ($URL)"
+#URL=$(pastebinit -P -i "$1" -a "anonymous" -b http://pastebin.com)
+#aws sns publish --phone-number="$2" --message "$(date) $code ($URL)"
+pb push "$(date) $code ($URL)"

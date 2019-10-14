@@ -40,4 +40,4 @@ report_text=\
 $(printf "Nightly Encode Job for %s\nVideos Encoded: %s\nTotal Minutes: %s\nSpace Saved: %s MiB" \
   "$(date +"%A %b. %d")" "$encode_count" "$totalDuration" "$space_saved")
 
-aws sns publish --phone-number="1-484-886-9081" --message "$report_text"
+aws sns publish --phone-number="$1" --message "$report_text"
