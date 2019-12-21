@@ -16,7 +16,7 @@ fi
 
 # Find all files with arg extension
 IFS=$'\n'
-videos=($(find . -name "*.$1"))
+videos=($(find . -maxdepth 1 -name "*.$1"))
 
 # If no files with arg extension exist, exit
 if [ -z "${videos[@]}" ]; then
