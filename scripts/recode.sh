@@ -27,7 +27,7 @@ do
   ff_filesize=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   filesize=$(echo "scale=2; $(echo "$ff_filesize" / 1024 | bc -l)" / 1024 | bc -l)
   
-  ffmpeg -y -i "${video}" -hide_banner -loglevel info -threads "$(nproc --all)" -vcodec libx264 -crf 20 -preset veryfast -vsync 1 -async 1 -c:a copy TEMP."$1" && mv TEMP."$1" "${video}"
+  ffmpeg -y -i "${video}" -hide_banner -loglevel info -threads "$(nproc --all)" -vcodec libx264 -crf 20 -preset veryfast -vsync 1 -async 1 -c:a copy /tmp/TEMP."$1" && mv -v /tmp/TEMP."$1" "${video}"
   
   ff_filesize_2=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   converted_size=$(echo "scale=2; $(echo "$ff_filesize_2" / 1024 | bc -l)" / 1024 | bc -l)
@@ -37,10 +37,6 @@ do
 
   space_saved=$(echo "scale=2; $space_saved + $(echo "scale=2; $filesize - $converted_size" | bc -l)" | bc -l)
   encode_count=$((encode_count+1))
-
-  #printf "\n\n\nEncode Stats for %s:\nDuration: %s Minutes\nSize Before: %s MiB\nSize After: %s MiB\n" \
-    #"${video}" "$duration" "$filesize" "$converted_size"
-  #echo "Encoded $encode_count of ${#video} videos at $(date +"%r on %x")"
 done
 
 # Send report
