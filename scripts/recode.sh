@@ -29,7 +29,7 @@ do
   ff_filesize=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   filesize=$(echo "scale=2; $(echo "$ff_filesize" / 1024 | bc -l)" / 1024 | bc -l)
 
-  ffmpeg -y -i "${video}" -hide_banner -loglevel info -threads "$(nproc --all)" -vcodec libx264 -crf 20 -preset veryfast -vsync 1 -async 1 -c:a copy /tmp/TEMP."$1" && mv -v /tmp/TEMP."$1" "${video}"
+  ffmpeg -y -i "${video}" -hide_banner -loglevel info -threads "$(nproc --all || 1)" -vcodec libx264 -crf 20 -preset veryfast -vsync 1 -async 1 -c:a copy /tmp/TEMP."$1" && mv -v /tmp/TEMP."$1" "${video}"
 
   ff_filesize_2=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
   converted_size=$(echo "scale=2; $(echo "$ff_filesize_2" / 1024 | bc -l)" / 1024 | bc -l)
