@@ -1,41 +1,28 @@
 #!/bin/bash
-# Nightly diff backup of select FreeNAS datasets to QNAP NAS share
-# Send SMS w/ output link using SNS if successful
+# Nightly diff backup of select FreeNAS datasets to QNAP NAS share & offsite backup
+# Send SMS w/ output link if successful
 # Send SMS w/ error message if unsuccessful
-# USAGE: './backup_nas.sh /output/file/path 1-234-567-8910'
 
-# If no args, print usage
-if [ $# -eq 0 ]; then
-  echo "USAGE: './backup_nas.sh /output/file/path"
-  exit 1
-fi
+backup () {
+  touch /tmp/"$3".txt && output_file=/tmp/"$3".txt || output_file=/dev/null
 
-# Do local backup
-printf "%s\n\n" "(LOCAL) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$1"
+  printf "%s\n\n" "($3) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$output_file"
 
-if rsync -avP --relative --ignore-errors --ignore-missing-args --exclude @Recycle --delete /mnt/./drt /mnt/./mdrive raxemremy@192.168.1.12:/share/Backup &>> "$1"; then
+  if rsync -av --relative --ignore-errors --ignore-missing-args \
+   --exclude @Recycle \
+   --delete \
+   /mnt/./drt \
+   /mnt/./mdrive \
+   raxemremy@"$2" &>> "$output_file"; then
     code="SUCCESS"
-else
+  else
     code="FAILURE"
-fi
+  fi
 
-URL=$(curl --upload-file "$1" https://transfer.sh/output.txt) 
-#URL=$(pastebinit -P -i "$1" -a "anonymous" -b http://pastebin.com)
-#aws sns publish --phone-number="$2" --message "$(date) $code ($URL)"
-pb push "(LOCAL) Backup for $(date) $code ($URL)"
+  pb push "($3) Backup for $(date) $code $(printf "\n%s" "$URL")"
+  pb push --file "$output_file"
+  rm "$output_file"
+}
 
-# Do offsite backup
-printf "%s\n\n" "(OFFSITE) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$1"
-
-if rsync -avP --relative --ignore-errors --ignore-missing-args --exclude @Recycle --delete /mnt/./drt /mnt/./mdrive raxemremy@castlemarquart.hopto.org:/offsite &>> "$1"; then
-    code="SUCCESS"
-else
-    code="FAILURE"
-fi
-
-URL=$(curl -F file="$1" http://0x0.st)
-#URL=$(pastebinit -P -i "$1" -a "anonymous" -b http://pastebin.com)
-#aws sns publish --phone-number="$2" --message "$(date) $code ($URL)"
-pb push "(OFFSITE) Backup for $(date) $code ($URL)"
-
-# Do offsite backup
+backup "$1" "192.168.1.12:/share/backup" "LOCAL"
+backup "$1" "castlemarquart.hopto.org:/offsite" "OFFSITE"
