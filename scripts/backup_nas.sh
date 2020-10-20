@@ -8,7 +8,7 @@ backup () {
 
   printf "%s\n\n" "($3) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$output_file"
 
-  if rsync -av --relative --ignore-errors --ignore-missing-args \
+  if rsync -e "ssh -p $4" --stats -ahv --relative --ignore-errors --ignore-missing-args \
    --exclude @Recycle \
    --delete \
    /mnt/./drt \
@@ -19,10 +19,19 @@ backup () {
     code="FAILURE"
   fi
 
-  pb push "($3) Backup for $(date) $code $(printf "\n%s" "$URL")"
+  transfer_size="Transfer Size: "$(grep "Literal data: " "$output_file" | cut -d " " -f 3)
+  new_files="New Files Created: "$(grep "Number of created files: " "$output_file" | cut -d " " -f 5)
+  deleted_files="Deleted Files: "$(grep "Number of deleted files: " "$output_file" | cut -d " " -f 5)
+
+  pb push "($3) Backup for $(date) $code $(printf "\n%s\n%s\n%s" \
+    "$transfer_size" \
+    "$new_files" \
+    "$deleted_files" \
+    )"
+
   pb push --file "$output_file"
   rm "$output_file"
 }
 
-backup "$1" "192.168.1.12:/share/backup" "LOCAL"
-backup "$1" "castlemarquart.hopto.org:/offsite" "OFFSITE"
+#backup "$1" "192.168.1.12:/share/backup" "LOCAL" "22"
+backup "$1" "castlemarquart.hopto.org:/offsite" "OFFSITE" "25200"
