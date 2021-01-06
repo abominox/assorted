@@ -4,6 +4,18 @@
 # Send SMS w/ error message if unsuccessful
 
 backup () {
+
+  # If dir empty, exit to avoid data destruction on remotes
+  if [ -z "$(ls -A /mnt/mdrive)" ]; then
+    pb push "Directory /mnt/mdrive is empty, exiting..."
+    exit 1
+  fi
+
+  if [ -z "$(ls -A /mnt/drt)" ]; then
+    pb push "Directory /mnt/drt is empty, exiting..."
+    exit 1
+  fi
+
   touch /tmp/"$3".txt && output_file=/tmp/"$3".txt || output_file=/dev/null
 
   printf "%s\n\n" "($3) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$output_file"
@@ -13,6 +25,7 @@ backup () {
    --delete \
    /mnt/./drt \
    /mnt/./mdrive \
+   /mnt/./nama_share \
    raxemremy@"$2" &>> "$output_file"; then
     code="SUCCESS"
   else

@@ -24,10 +24,21 @@ if [ -z "${videos[@]}" ]; then
   exit 1
 fi
 
+# Confirm selection
+echo "Are you sure you would like to re-encode the following files?"
+echo "${videos[*]}"
+read -rp "Enter y to proceed, anything else to cancel" selection
+
+if [ "$selection" != 'y' ]; then
+  exit 0
+fi
+
+# Re-encode
 for video in "${videos[@]}";
 do
   ff_filesize=$(ffprobe -i "${video}" -show_entries format=size -v quiet -of csv="p=0")
-  filesize=$(echo "scale=2; $(echo "$ff_filesize" / 1024 | bc -l)" / 1024 | bc -l)
+  
+filesize=$(echo "scale=2; $(echo "$ff_filesize" / 1024 | bc -l)" / 1024 | bc -l)
 
   ffmpeg -y -i "${video}" -hide_banner -loglevel info -threads "$(nproc --all || 1)" -vcodec libx264 -crf 20 -preset veryfast -vsync 1 -async 1 -c:a copy /tmp/TEMP."$1" && mv -v /tmp/TEMP."$1" "${video}"
 
