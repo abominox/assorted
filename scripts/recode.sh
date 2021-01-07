@@ -27,7 +27,7 @@ fi
 # Confirm selection
 echo "Are you sure you would like to re-encode the following files?"
 echo "${videos[*]}"
-read -rp "Enter y to proceed, anything else to cancel" selection
+read -rp "Enter y to proceed, anything else to cancel" selection </dev/tty
 
 if [ "$selection" != 'y' ]; then
   exit 0
