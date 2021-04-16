@@ -3,7 +3,4 @@
 
 import psutil
 
-def main():
-    print(str(psutil.cpu_percent()) + "/" + str(psutil.virtual_memory()._asdict().get("percent")))
-
-main()
+print(str(psutil.cpu_percent(interval=1.0)) + "/" + str(psutil.virtual_memory()._asdict().get("percent")))
