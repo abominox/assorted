@@ -16,6 +16,11 @@ backup () {
     exit 1
   fi
 
+  if [ -z "$(ls -A /mnt/nama_share)" ]; then
+    pb push "Directory /mnt/nama_share is empty, exiting..."
+    exit 1
+  fi
+
   touch /tmp/"$3".txt && output_file=/tmp/"$3".txt || output_file=/dev/null
 
   printf "%s\n\n" "($3) Daily Differential Backup for $(date +"%A %b %d, %Y")" > "$output_file"
