@@ -60,6 +60,7 @@ $(printf "Encode Job for %s\nVideos Encoded: %s\nTotal Minutes: %s\nSpace Saved:
 if [ ! -f /usr/local/bin/pb ]; then
   echo "pushbullet-cli is not installed/configured, notification not sent!"
   echo "Please see https://github.com/GustavoKatel/pushbullet-cli"
+  echo "$report_text"
 else
   pb push "$report_text"
 fi

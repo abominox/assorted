@@ -1,8 +1,7 @@
 #!/bin/sh
 # Setup a temporary, 20 minute scratch server for testing.
 
-# DELETE LATER
-api_key="COY7KIJQQ7SV33X6DEUR3BEA7MGCMVLHCLJA"
+api_key="XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 # If arg exists, keep the server indefinitely by killing existing script PID.
 if [ ! -z "$1" ]; then
